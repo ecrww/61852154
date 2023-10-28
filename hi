@@ -1,0 +1,81 @@
+-- Place this script inside a LocalScript within a ScreenGui object in a Player's GUI
+
+local player = game.Players.LocalPlayer
+local speedValue = 16 -- Default speed value
+
+-- Create Screen GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = player.PlayerGui
+
+-- Create GUI frame
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 200, 0, 100)
+frame.Position = UDim2.new(0.5, -100, 0.5, -50)
+frame.BackgroundColor3 = Color3.new(0, 0, 0)
+frame.BackgroundTransparency = 0.5
+frame.Parent = screenGui
+
+-- Create Speed Label
+local speedLabel = Instance.new("TextLabel")
+speedLabel.Size = UDim2.new(0, 200, 0, 20)
+speedLabel.Position = UDim2.new(0, 0, 0, 10)
+speedLabel.Text = "Speed: " .. tostring(speedValue)
+speedLabel.TextSize = 14
+speedLabel.TextColor3 = Color3.new(1, 1, 1)
+speedLabel.Parent = frame
+
+-- Create Speed Bar
+local speedBar = Instance.new("Frame")
+speedBar.Size = UDim2.new(0, 180, 0, 20)
+speedBar.Position = UDim2.new(0, 10, 0, 40)
+speedBar.BackgroundColor3 = Color3.new(0.3, 0.3, 0.3)
+speedBar.Parent = frame
+
+local speedFill = Instance.new("Frame")
+speedFill.Size = UDim2.new(0, 0, 1, 0)
+speedFill.BackgroundColor3 = Color3.new(0, 1, 0)
+speedFill.Parent = speedBar
+
+-- Create Continue Button
+local continueButton = Instance.new("TextButton")
+continueButton.Size = UDim2.new(0, 100, 0, 30)
+continueButton.Position = UDim2.new(0.5, -50, 0, 70)
+continueButton.Text = "Continue"
+continueButton.TextSize = 14
+continueButton.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5)
+continueButton.Parent = frame
+
+-- Function to change player speed
+local function changeSpeed(newSpeed)
+    speedValue = newSpeed
+    speedLabel.Text = "Speed: " .. tostring(speedValue)
+    -- Apply speed change to player's character
+    player.Character.Humanoid.WalkSpeed = speedValue
+end
+
+-- Function to handle speed bar changes
+local function handleSpeedBar()
+    local mouse = player:GetMouse()
+    local maxBarWidth = 180
+    local mouseX, mouseY = mouse.X, mouse.Y
+
+    -- Update speed based on mouse position
+    local newSpeed = math.clamp((mouseX - speedBar.AbsolutePosition.X) / maxBarWidth, 0, 1) * 100
+    newSpeed = math.floor(newSpeed + 0.5) -- Round to nearest integer
+    
+    -- Update speed bar fill
+    speedFill.Size = UDim2.new(newSpeed / 100, 0, 1, 0)
+    
+    -- Change speed when mouse release
+    mouse.Button1Up:Connect(function()
+        changeSpeed(newSpeed)
+    end)
+end
+
+-- Connect speed bar changes
+speedBar.MouseButton1Down:Connect(handleSpeedBar)
+
+-- Connect continue button to close the GUI
+continueButton.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+end)
